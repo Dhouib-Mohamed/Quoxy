@@ -2,6 +2,7 @@ package router
 
 import (
 	"api-authenticator-proxy/src/database"
+	"api-authenticator-proxy/src/database/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,48 +28,48 @@ func tokenRoutes(router *gin.Engine) {
 			return
 		}
 		if len(tokens) == 0 {
-			c.JSON(200, gin.H{"result": []database.TokenModel{}, "message": "No tokens found"})
+			c.JSON(200, gin.H{"result": []models.TokenModel{}, "message": "No tokens found"})
 			return
 		}
 		c.JSON(200, gin.H{"result": tokens})
 	})
 
 	tokenRouter.POST("/", func(c *gin.Context) {
-		var newToken database.CreateToken
+		var newToken models.CreateToken
 		if err := c.ShouldBindJSON(&newToken); err != nil {
 			c.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
-		result, err := token.Create(&newToken)
+		res, err := token.Create(&newToken)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(200, gin.H{"message": "Token created", "result": result})
+		c.JSON(201, gin.H{"message": "Token created", "result": res})
 	})
 
 	tokenRouter.PUT("/:id", func(c *gin.Context) {
 		id := c.Param("id")
-		var updateToken database.UpdateToken
+		var updateToken models.UpdateToken
 		if err := c.ShouldBindJSON(&updateToken); err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
+			c.JSON(400, gin.H{"error": ""})
 			return
 		}
-		result, err := token.Update(id, &updateToken)
+		err := token.Update(id, &updateToken)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(200, gin.H{"message": "Token updated", "result": result})
+		c.JSON(200, gin.H{"message": "Token updated"})
 	})
 
 	tokenRouter.DELETE("/:id", func(c *gin.Context) {
 		id := c.Param("id")
-		result, err := token.Disable(id)
+		err := token.Disable(id)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(200, gin.H{"message": "Token deleted", "result": result})
+		c.JSON(200, gin.H{"message": "Token deleted"})
 	})
 }

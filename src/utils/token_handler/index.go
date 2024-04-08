@@ -10,69 +10,71 @@ import (
 	"io"
 )
 
-var key = []byte("example key 1234")
-
-func Generate(passphrase string, subscription string) (string, error) {
+func Generate(id string, passphrase string) (string, error) {
 	data := map[string]string{
-		"subscription": subscription,
-		"passphrase":   passphrase,
+		"id":         id,
+		"passphrase": passphrase,
 	}
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error in the provided data")
 	}
 
-	block, err := aes.NewCipher(key)
+	gcm, err := createGCMBloc()
 	if err != nil {
 		return "", err
 	}
 
-	iv := make([]byte, aes.BlockSize)
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return "", err
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		return "", fmt.Errorf("unexpected error : Please try again")
 	}
 
-	plaintext := append(iv, jsonData...)
+	ciphertext := gcm.Seal(nonce, nonce, jsonData, nil)
 
-	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
-	mode := cipher.NewCBCEncrypter(block, iv)
-	mode.CryptBlocks(ciphertext[aes.BlockSize:], plaintext)
-
-	token := base64.StdEncoding.EncodeToString(ciphertext)
-	return token, nil
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
 func Decrypt(token string) (string, error) {
-	ciphertext, err := base64.StdEncoding.DecodeString(token)
+	decodedToken, err := base64.StdEncoding.DecodeString(token)
+	if err != nil {
+		return "", fmt.Errorf("error decoding the token: invalid token provided")
+	}
+	gcm, err := createGCMBloc()
 	if err != nil {
 		return "", err
 	}
+
+	nonceSize := gcm.NonceSize()
+	if len(decodedToken) < nonceSize {
+		return "", fmt.Errorf("error decoding the token: invalid token provided")
+	}
+
+	nonce, ciphertext := decodedToken[:nonceSize], decodedToken[nonceSize:]
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return "", fmt.Errorf("error decoding the token: invalid token provided")
+	}
+
+	var decryptedStruct map[string]string
+	err = json.Unmarshal(plaintext, &decryptedStruct)
+	if err != nil {
+		return "", fmt.Errorf("error extracting the id from the token")
+	}
+	return decryptedStruct["id"], nil
+}
+
+func createGCMBloc() (cipher.AEAD, error) {
+	var key = []byte("example key 1234")
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return "", err
+		return nil, fmt.Errorf("invalid key : Please check your key")
 	}
-
-	if len(ciphertext) < aes.BlockSize {
-		return "", fmt.Errorf("ciphertext too short")
-	}
-
-	iv := ciphertext[:aes.BlockSize]
-	ciphertext = ciphertext[aes.BlockSize:]
-
-	if len(ciphertext)%aes.BlockSize != 0 {
-		return "", fmt.Errorf("ciphertext is not a multiple of the block size")
-	}
-
-	mode := cipher.NewCBCDecrypter(block, iv)
-	mode.CryptBlocks(ciphertext, ciphertext)
-
-	var data map[string]string
-	err = json.Unmarshal(ciphertext, &data)
+	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return "", err
+		return nil, fmt.Errorf("invalid key : Please check your key")
 	}
-
-	return data["subscription"], nil
+	return gcm, nil
 }

@@ -2,33 +2,37 @@ package router
 
 import (
 	"api-authenticator-proxy/src/database"
+	"api-authenticator-proxy/src/database/models"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
 func subscriptionRoutes(router *gin.Engine) {
 	subscription := database.Subscription{}
 
-	router.GET("/subscription/:id", func(c *gin.Context) {
-		id := c.Param("id")
-		subscription, err := subscription.GetById(id)
-		if err != nil {
-			c.JSON(404, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(200, gin.H{
-			"result": subscription,
+	router.GET("/subscription/:id",
+		func(c *gin.Context) {
+			id := c.Param("id")
+			subscription, err := subscription.GetById(id)
+			if err != nil {
+				c.JSON(404, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(200, gin.H{
+				"result": subscription,
+			})
 		})
-	})
 
-	router.GET("/subscription/name/:name", func(c *gin.Context) {
-		name := c.Param("name")
-		subscription, err := subscription.GetByName(name)
-		if err != nil {
-			c.JSON(404, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(200, gin.H{"result": subscription})
-	})
+	router.GET("/subscription/name/:name",
+		func(c *gin.Context) {
+			name := c.Param("name")
+			subscription, err := subscription.GetByName(name)
+			if err != nil {
+				c.JSON(404, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(200, gin.H{"result": subscription})
+		})
 
 	router.GET("/subscription", func(c *gin.Context) {
 		subscriptions, err := subscription.GetAll()
@@ -37,58 +41,60 @@ func subscriptionRoutes(router *gin.Engine) {
 			return
 		}
 		if len(subscriptions) == 0 {
-			c.JSON(200, gin.H{"result": []database.SubscriptionModel{}, "message": "No subscriptions found"})
+			c.JSON(200, gin.H{"result": []models.SubscriptionModel{}, "message": "No subscriptions found"})
 			return
 		}
 		c.JSON(200, gin.H{"result": subscriptions})
 	})
 
-	router.POST("/subscription", func(c *gin.Context) {
-		var newSubscription database.CreateSubscription
-		if err := c.ShouldBindJSON(&newSubscription); err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
-			return
-		}
-		result, err := subscription.Create(&newSubscription)
-		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(200, gin.H{"message": "Subscription created", "result": result})
-	})
+	router.POST("/subscription",
+		func(c *gin.Context) {
+			fmt.Println("BODY", c.Request.Body)
+			var newSubscription models.CreateSubscription
+			if err := c.BindJSON(&newSubscription); err != nil {
+				c.JSON(400, gin.H{"error": err.Error()})
+				return
+			}
+			err := subscription.Create(&newSubscription)
+			if err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(201, gin.H{"message": "Subscription created"})
+		})
 
 	router.PUT("/subscription/:id", func(c *gin.Context) {
 		id := c.Param("id")
-		var updateSubscription database.UpdateSubscription
+		var updateSubscription models.UpdateSubscription
 		if err := c.ShouldBindJSON(&updateSubscription); err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
+			c.JSON(400, gin.H{"error": "body fields not found"})
 			return
 		}
-		result, err := subscription.Update(id, &updateSubscription)
+		err := subscription.Update(id, &updateSubscription)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(200, gin.H{"message": "Subscription updated", "result": result})
+		c.JSON(200, gin.H{"message": "Subscription updated"})
 	})
 
 	router.DELETE("/subscription/:id", func(c *gin.Context) {
 		id := c.Param("id")
-		result, err := subscription.Disable(id)
+		err := subscription.Disable(id)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(200, gin.H{"message": "Subscription disabled", "result": result})
+		c.JSON(200, gin.H{"message": "Subscription disabled"})
 	})
 
 	router.PATCH("/subscription/:id", func(c *gin.Context) {
 		id := c.Param("id")
-		result, err := subscription.Restore(id)
+		err := subscription.Restore(id)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(200, gin.H{"message": "Subscription restored", "result": result})
+		c.JSON(200, gin.H{"message": "Subscription restored"})
 	})
 }

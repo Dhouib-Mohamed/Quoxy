@@ -9,5 +9,5 @@ func Router() {
 	subscriptionRoutes(router)
 	tokenRoutes(router)
 	notFoundRoutes(router)
-	panic(router.Run(":8080"))
+	panic(router.Run(":8020"))
 }

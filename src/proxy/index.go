@@ -25,16 +25,3 @@ func Proxy() {
 		panic(err)
 	}
 }
-
-type Handler struct {
-	proxy          *httputil.ReverseProxy
-	destinationUrl *url.URL
-}
-
-func (ph *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	r.Host = ph.destinationUrl.Host
-	r.URL.Host = ph.destinationUrl.Host
-	r.URL.Scheme = ph.destinationUrl.Scheme
-	r.RequestURI = ""
-	ph.proxy.ServeHTTP(w, r)
-}
