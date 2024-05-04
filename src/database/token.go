@@ -56,7 +56,6 @@ func (t *Token) GetAll() ([]models.TokenModel, error) {
 }
 
 func (t *Token) Update(id string, token *models.UpdateToken) error {
-	s := Subscription{}
 	subscription, err := s.GetByName(token.Subscription)
 	if err != nil {
 		return err
@@ -90,4 +89,8 @@ func (t *Token) Disable(id string) error {
 
 func (t *Token) GenerateToken(id string, passphrase string) (string, error) {
 	return token_handler.Generate(id, passphrase)
+}
+
+func (t *Token) ResetUsage(id string) error {
+	return checkResponse(db.Exec("UPDATE token SET current_usage = 0 WHERE id = ?", id))
 }
