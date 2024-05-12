@@ -3,6 +3,7 @@ package frequency_cron
 import (
 	"api-authenticator-proxy/src/database"
 	"api-authenticator-proxy/src/database/models"
+	"api-authenticator-proxy/src/utils/log"
 	"strconv"
 	"strings"
 	"time"
@@ -11,11 +12,11 @@ import (
 var tokenDB = database.Token{}
 var subscriptionDB = database.Subscription{}
 
-func check_tokens() {
+func checkTokens() {
+	log.Info("Checking Tokens")
 	tokens, err := tokenDB.GetAll()
-	if err != nil {
-		panic(err)
-	}
+	log.Info("Checking Tokens Starting")
+	log.Error(err)
 	currentTime := time.Now()
 	for _, token := range tokens {
 		go processToken(token, currentTime)
@@ -24,15 +25,11 @@ func check_tokens() {
 
 func processToken(token models.TokenModel, currentTime time.Time) {
 	subscription, err := subscriptionDB.GetByName(token.Subscription)
-	if err != nil {
-		panic(err)
-	}
+	log.Error(err)
 	frequency := subscription.Frequency
 	if cronEqDate(frequency, currentTime) {
 		err = tokenDB.ResetUsage(token.Id)
-		if err != nil {
-			panic(err)
-		}
+		log.Error(err)
 	}
 }
 

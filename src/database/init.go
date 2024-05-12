@@ -1,6 +1,7 @@
 package database
 
 import (
+	"api-authenticator-proxy/src/utils/log"
 	"context"
 	"database/sql"
 	_ "modernc.org/sqlite"
@@ -26,5 +27,7 @@ func InitDatabase(dbPath string) error {
 	if err != nil {
 		return err
 	}
+
+	log.Info("Database initialized successfully")
 	return nil
 }

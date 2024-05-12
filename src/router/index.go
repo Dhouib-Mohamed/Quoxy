@@ -1,13 +1,19 @@
 package router
 
-import "github.com/gin-gonic/gin"
+import (
+	"api-authenticator-proxy/src/utils/log"
+	"github.com/gin-gonic/gin"
+)
 
-func Router() {
+func Router() *gin.Engine {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	healthRoutes(router)
 	versionRoutes(router)
 	subscriptionRoutes(router)
 	tokenRoutes(router)
 	notFoundRoutes(router)
-	panic(router.Run(":8020"))
+	log.Info("HTTP Server running on 8020")
+	log.Fatal(router.Run(":8020"))
+	return router
 }
