@@ -14,9 +14,9 @@ var subscriptionDB = database.Subscription{}
 
 func checkTokens() {
 	log.Info("Checking Tokens")
-	tokens, err := tokenDB.GetAll()
+	tokens, _ := tokenDB.GetAll()
 	log.Info("Checking Tokens Starting")
-	log.Error(err)
+	//log.Error(err)
 	currentTime := time.Now()
 	for _, token := range tokens {
 		go processToken(token, currentTime)
@@ -24,12 +24,12 @@ func checkTokens() {
 }
 
 func processToken(token models.TokenModel, currentTime time.Time) {
-	subscription, err := subscriptionDB.GetByName(token.Subscription)
-	log.Error(err)
+	subscription, _ := subscriptionDB.GetByName(token.Subscription)
+	//log.Error(err)
 	frequency := subscription.Frequency
 	if cronEqDate(frequency, currentTime) {
-		err = tokenDB.ResetUsage(token.Id)
-		log.Error(err)
+		_ = tokenDB.ResetUsage(token.Id)
+		//log.Error(err)
 	}
 }
 

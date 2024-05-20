@@ -1,5 +1,5 @@
 1. Adding Log System (Done)
-2. Adding Error Handling
+2. Adding Error Handling (Done)
 3. Adding Necessary Logs
 4. Adding env system
 5. Adding Documentation

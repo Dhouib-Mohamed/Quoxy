@@ -1,31 +1,50 @@
 package database
 
 import (
+	"api-authenticator-proxy/src/utils/error_handler"
+	dbError "api-authenticator-proxy/src/utils/error_handler/db"
 	"database/sql"
 	"fmt"
 )
 
-func checkResponse(result sql.Result, err error) error {
+func checkWriteResponse(result sql.Result, err error, table string) error_handler.StatusError {
 	if err != nil {
-		return err
+		switch err.Error() {
+		case sql.ErrNoRows.Error():
+			return dbError.ElementNotFoundError(table)
+		default:
+			return error_handler.UnexpectedError(fmt.Sprintf("Unexpected error when writing to the %s table ", table))
+		}
 	}
 	rows, err := result.RowsAffected()
 	if err != nil {
-		return err
+		return error_handler.UnexpectedError(fmt.Sprintf("Unexpected error when writing to the %s table ", table))
 	}
 	if rows == 0 {
-		return fmt.Errorf("Unexpected error, try checking the provided id")
+		return dbError.ElementNotFoundError(table)
 	}
 	return nil
 }
 
-func GetLastInsertedId(table string) (string, error) {
+func checkReadResponse(err error, table string) error_handler.StatusError {
+	if err == nil {
+		return nil
+	}
+	switch err.Error() {
+	case sql.ErrNoRows.Error():
+		return dbError.ElementNotFoundError(table)
+	default:
+		return error_handler.UnexpectedError(fmt.Sprintf("Unexpected error when reading from the %s table ", table))
+	}
+}
+
+func GetLastInsertedId(table string) (string, error_handler.StatusError) {
 	var id string
 	query := fmt.Sprintf("SELECT id FROM %s ORDER BY ROWID DESC LIMIT 1", table)
 	row := db.QueryRow(query)
 	err := row.Scan(&id)
 	if err != nil {
-		return "", err
+		return "", error_handler.UnexpectedError(fmt.Sprintf("Unexpected error when reading from the %s table : %s", table, err.Error()))
 	}
 	return id, nil
 }

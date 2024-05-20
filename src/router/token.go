@@ -3,6 +3,7 @@ package router
 import (
 	"api-authenticator-proxy/src/database"
 	"api-authenticator-proxy/src/database/models"
+	"api-authenticator-proxy/src/utils/error_handler"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +16,7 @@ func tokenRoutes(router *gin.Engine) {
 		id := c.Param("id")
 		token, err := token.GetById(id)
 		if err != nil {
-			c.JSON(404, gin.H{"error": err.Error()})
+			error_handler.GinHandler(c, err)
 			return
 		}
 		c.JSON(200, gin.H{"result": token})
@@ -24,7 +25,7 @@ func tokenRoutes(router *gin.Engine) {
 	tokenRouter.GET("/", func(c *gin.Context) {
 		tokens, err := token.GetAll()
 		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
+			error_handler.GinHandler(c, err)
 			return
 		}
 		if len(tokens) == 0 {
@@ -42,7 +43,7 @@ func tokenRoutes(router *gin.Engine) {
 		}
 		res, err := token.Create(&newToken)
 		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
+			error_handler.GinHandler(c, err)
 			return
 		}
 		c.JSON(201, gin.H{"message": "Token created", "result": res})
@@ -57,7 +58,7 @@ func tokenRoutes(router *gin.Engine) {
 		}
 		err := token.Update(id, &updateToken)
 		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
+			error_handler.GinHandler(c, err)
 			return
 		}
 		c.JSON(200, gin.H{"message": "Token updated"})
@@ -67,7 +68,7 @@ func tokenRoutes(router *gin.Engine) {
 		id := c.Param("id")
 		err := token.Disable(id)
 		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
+			error_handler.GinHandler(c, err)
 			return
 		}
 		c.JSON(200, gin.H{"message": "Token deleted"})
