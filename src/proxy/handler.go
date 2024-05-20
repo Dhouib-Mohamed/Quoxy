@@ -22,7 +22,8 @@ func (ph *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t := database.Token{}
 	err := t.Use(token)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		code, msg := err.GetError()
+		http.Error(w, msg, code)
 		return
 	}
 	r.Host = ph.destinationUrl.Host

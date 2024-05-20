@@ -3,6 +3,7 @@ package router
 import (
 	"api-authenticator-proxy/src/database"
 	"api-authenticator-proxy/src/database/models"
+	"api-authenticator-proxy/src/utils/error_handler"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -15,7 +16,7 @@ func subscriptionRoutes(router *gin.Engine) {
 			id := c.Param("id")
 			subscription, err := subscription.GetById(id)
 			if err != nil {
-				c.JSON(404, gin.H{"error": err.Error()})
+				error_handler.GinHandler(c, err)
 				return
 			}
 			c.JSON(200, gin.H{
@@ -28,24 +29,25 @@ func subscriptionRoutes(router *gin.Engine) {
 			name := c.Param("name")
 			subscription, err := subscription.GetByName(name)
 			if err != nil {
-				c.JSON(404, gin.H{"error": err.Error()})
+				error_handler.GinHandler(c, err)
 				return
 			}
 			c.JSON(200, gin.H{"result": subscription})
 		})
 
-	router.GET("/subscription", func(c *gin.Context) {
-		subscriptions, err := subscription.GetAll()
-		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
-			return
-		}
-		if len(subscriptions) == 0 {
-			c.JSON(200, gin.H{"result": []models.SubscriptionModel{}, "message": "No subscriptions found"})
-			return
-		}
-		c.JSON(200, gin.H{"result": subscriptions})
-	})
+	router.GET("/subscription",
+		func(c *gin.Context) {
+			subscriptions, err := subscription.GetAll()
+			if err != nil {
+				error_handler.GinHandler(c, err)
+				return
+			}
+			if len(subscriptions) == 0 {
+				c.JSON(200, gin.H{"result": []models.SubscriptionModel{}, "message": "No subscriptions found"})
+				return
+			}
+			c.JSON(200, gin.H{"result": subscriptions})
+		})
 
 	router.POST("/subscription",
 		func(c *gin.Context) {
@@ -57,32 +59,33 @@ func subscriptionRoutes(router *gin.Engine) {
 			}
 			err := subscription.Create(&newSubscription)
 			if err != nil {
-				c.JSON(500, gin.H{"error": err.Error()})
+				error_handler.GinHandler(c, err)
 				return
 			}
 			c.JSON(201, gin.H{"message": "Subscription created"})
 		})
 
-	router.PUT("/subscription/:id", func(c *gin.Context) {
-		id := c.Param("id")
-		var updateSubscription models.UpdateSubscription
-		if err := c.ShouldBindJSON(&updateSubscription); err != nil {
-			c.JSON(400, gin.H{"error": "body fields not found"})
-			return
-		}
-		err := subscription.Update(id, &updateSubscription)
-		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(200, gin.H{"message": "Subscription updated"})
-	})
+	router.PUT("/subscription/:id",
+		func(c *gin.Context) {
+			id := c.Param("id")
+			var updateSubscription models.UpdateSubscription
+			if err := c.ShouldBindJSON(&updateSubscription); err != nil {
+				c.JSON(400, gin.H{"error": "body fields not found"})
+				return
+			}
+			err := subscription.Update(id, &updateSubscription)
+			if err != nil {
+				error_handler.GinHandler(c, err)
+				return
+			}
+			c.JSON(200, gin.H{"message": "Subscription updated"})
+		})
 
 	router.DELETE("/subscription/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		err := subscription.Disable(id)
 		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
+			error_handler.GinHandler(c, err)
 			return
 		}
 		c.JSON(200, gin.H{"message": "Subscription disabled"})
@@ -92,7 +95,7 @@ func subscriptionRoutes(router *gin.Engine) {
 		id := c.Param("id")
 		err := subscription.Restore(id)
 		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
+			error_handler.GinHandler(c, err)
 			return
 		}
 		c.JSON(200, gin.H{"message": "Subscription restored"})

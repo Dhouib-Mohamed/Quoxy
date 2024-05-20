@@ -1,24 +1,25 @@
 package token_handler
 
 import (
+	"api-authenticator-proxy/src/utils/error_handler"
+	tokenError "api-authenticator-proxy/src/utils/error_handler/token"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io"
 )
 
-func Generate(id string, passphrase string) (string, error) {
+func Generate(id string, passphrase string) (string, error_handler.StatusError) {
 	data := map[string]string{
 		"id":         id,
 		"passphrase": passphrase,
 	}
 
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return "", fmt.Errorf("error in the provided data")
+	jsonData, err1 := json.Marshal(data)
+	if err1 != nil {
+		return "", error_handler.UnexpectedError("unexpected error : Error in provided data")
 	}
 
 	gcm, err := createGCMBloc()
@@ -27,8 +28,8 @@ func Generate(id string, passphrase string) (string, error) {
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
-	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		return "", fmt.Errorf("unexpected error : Please try again")
+	if _, err1 = io.ReadFull(rand.Reader, nonce); err1 != nil {
+		return "", error_handler.UnexpectedError("unexpected error : Error in nonce generation")
 	}
 
 	ciphertext := gcm.Seal(nonce, nonce, jsonData, nil)
@@ -36,45 +37,45 @@ func Generate(id string, passphrase string) (string, error) {
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
-func Decrypt(token string) (string, error) {
+func Decrypt(token string) (string, error_handler.StatusError) {
 	decodedToken, err := base64.StdEncoding.DecodeString(token)
 	if err != nil {
-		return "", fmt.Errorf("error decoding the token: invalid token provided")
+		return "", tokenError.InvalidTokenError()
 	}
-	gcm, err := createGCMBloc()
-	if err != nil {
-		return "", err
+	gcm, err1 := createGCMBloc()
+	if err1 != nil {
+		return "", err1
 	}
 
 	nonceSize := gcm.NonceSize()
 	if len(decodedToken) < nonceSize {
-		return "", fmt.Errorf("error decoding the token: invalid token provided")
+		return "", tokenError.InvalidTokenError()
 	}
 
 	nonce, ciphertext := decodedToken[:nonceSize], decodedToken[nonceSize:]
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
-		return "", fmt.Errorf("error decoding the token: invalid token provided")
+		return "", tokenError.InvalidTokenError()
 	}
 
 	var decryptedStruct map[string]string
 	err = json.Unmarshal(plaintext, &decryptedStruct)
 	if err != nil {
-		return "", fmt.Errorf("error extracting the id from the token")
+		return "", tokenError.InvalidTokenError()
 	}
 	return decryptedStruct["id"], nil
 }
 
-func createGCMBloc() (cipher.AEAD, error) {
+func createGCMBloc() (cipher.AEAD, error_handler.StatusError) {
 	var key = []byte("example key 1234")
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, fmt.Errorf("invalid key : Please check your key")
+		return nil, error_handler.UnexpectedError("Error in key generation")
 	}
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return nil, fmt.Errorf("invalid key : Please check your key")
+		return nil, error_handler.UnexpectedError("Error in GCM generation")
 	}
 	return gcm, nil
 }
