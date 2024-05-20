@@ -1,9 +1,9 @@
 package database
 
 import (
-	"api-authenticator-proxy/src/database/models"
-	"api-authenticator-proxy/src/utils/error_handler"
-	dbError "api-authenticator-proxy/src/utils/error_handler/db"
+	"api-authenticator-proxy/internal/models"
+	"api-authenticator-proxy/util/error_handler"
+	dbError "api-authenticator-proxy/util/error_handler/db"
 	"fmt"
 	"regexp"
 	"strings"

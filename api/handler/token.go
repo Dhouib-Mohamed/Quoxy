@@ -1,9 +1,9 @@
-package router
+package handler
 
 import (
-	"api-authenticator-proxy/src/database"
-	"api-authenticator-proxy/src/database/models"
-	"api-authenticator-proxy/src/utils/error_handler"
+	"api-authenticator-proxy/internal/database"
+	"api-authenticator-proxy/internal/models"
+	"api-authenticator-proxy/util/error_handler"
 	"github.com/gin-gonic/gin"
 )
 

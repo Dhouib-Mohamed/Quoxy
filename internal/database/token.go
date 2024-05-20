@@ -1,10 +1,10 @@
 package database
 
 import (
-	"api-authenticator-proxy/src/database/models"
-	"api-authenticator-proxy/src/utils/error_handler"
-	tokenError "api-authenticator-proxy/src/utils/error_handler/token"
-	"api-authenticator-proxy/src/utils/token_handler"
+	"api-authenticator-proxy/internal/models"
+	"api-authenticator-proxy/internal/util/token_handler"
+	"api-authenticator-proxy/util/error_handler"
+	tokenError "api-authenticator-proxy/util/error_handler/token"
 )
 
 type Token struct{}

@@ -1,8 +1,8 @@
-package router
+package handler
 
 import (
-	"api-authenticator-proxy/src/utils/error_handler"
-	routerError "api-authenticator-proxy/src/utils/error_handler/router"
+	"api-authenticator-proxy/util/error_handler"
+	routerError "api-authenticator-proxy/util/error_handler/router"
 	"github.com/gin-gonic/gin"
 )
 

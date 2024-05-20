@@ -1,8 +1,8 @@
 package token_handler
 
 import (
-	"api-authenticator-proxy/src/utils/error_handler"
-	tokenError "api-authenticator-proxy/src/utils/error_handler/token"
+	error_handler2 "api-authenticator-proxy/util/error_handler"
+	tokenError "api-authenticator-proxy/util/error_handler/token"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -11,7 +11,7 @@ import (
 	"io"
 )
 
-func Generate(id string, passphrase string) (string, error_handler.StatusError) {
+func Generate(id string, passphrase string) (string, error_handler2.StatusError) {
 	data := map[string]string{
 		"id":         id,
 		"passphrase": passphrase,
@@ -19,7 +19,7 @@ func Generate(id string, passphrase string) (string, error_handler.StatusError) 
 
 	jsonData, err1 := json.Marshal(data)
 	if err1 != nil {
-		return "", error_handler.UnexpectedError("unexpected error : Error in provided data")
+		return "", error_handler2.UnexpectedError("unexpected error : Error in provided data")
 	}
 
 	gcm, err := createGCMBloc()
@@ -29,7 +29,7 @@ func Generate(id string, passphrase string) (string, error_handler.StatusError) 
 
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err1 = io.ReadFull(rand.Reader, nonce); err1 != nil {
-		return "", error_handler.UnexpectedError("unexpected error : Error in nonce generation")
+		return "", error_handler2.UnexpectedError("unexpected error : Error in nonce generation")
 	}
 
 	ciphertext := gcm.Seal(nonce, nonce, jsonData, nil)
@@ -37,7 +37,7 @@ func Generate(id string, passphrase string) (string, error_handler.StatusError) 
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
-func Decrypt(token string) (string, error_handler.StatusError) {
+func Decrypt(token string) (string, error_handler2.StatusError) {
 	decodedToken, err := base64.StdEncoding.DecodeString(token)
 	if err != nil {
 		return "", tokenError.InvalidTokenError()
@@ -66,16 +66,16 @@ func Decrypt(token string) (string, error_handler.StatusError) {
 	return decryptedStruct["id"], nil
 }
 
-func createGCMBloc() (cipher.AEAD, error_handler.StatusError) {
+func createGCMBloc() (cipher.AEAD, error_handler2.StatusError) {
 	var key = []byte("example key 1234")
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, error_handler.UnexpectedError("Error in key generation")
+		return nil, error_handler2.UnexpectedError("Error in key generation")
 	}
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return nil, error_handler.UnexpectedError("Error in GCM generation")
+		return nil, error_handler2.UnexpectedError("Error in GCM generation")
 	}
 	return gcm, nil
 }
