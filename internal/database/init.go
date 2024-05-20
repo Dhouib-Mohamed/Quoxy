@@ -1,7 +1,7 @@
 package database
 
 import (
-	"api-authenticator-proxy/src/utils/log"
+	"api-authenticator-proxy/util/log"
 	"context"
 	"database/sql"
 	_ "modernc.org/sqlite"

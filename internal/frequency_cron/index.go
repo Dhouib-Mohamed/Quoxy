@@ -1,7 +1,7 @@
 package frequency_cron
 
 import (
-	"api-authenticator-proxy/src/utils/log"
+	"api-authenticator-proxy/util/log"
 	"github.com/robfig/cron"
 )
 

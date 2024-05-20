@@ -1,16 +1,16 @@
 package frequency_cron
 
 import (
-	"api-authenticator-proxy/src/database"
-	"api-authenticator-proxy/src/database/models"
-	"api-authenticator-proxy/src/utils/log"
+	database2 "api-authenticator-proxy/internal/database"
+	"api-authenticator-proxy/internal/models"
+	"api-authenticator-proxy/util/log"
 	"strconv"
 	"strings"
 	"time"
 )
 
-var tokenDB = database.Token{}
-var subscriptionDB = database.Subscription{}
+var tokenDB = database2.Token{}
+var subscriptionDB = database2.Subscription{}
 
 func checkTokens() {
 	log.Info("Checking Tokens")

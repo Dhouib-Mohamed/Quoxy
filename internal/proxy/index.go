@@ -1,7 +1,7 @@
 package proxy
 
 import (
-	"api-authenticator-proxy/src/utils/log"
+	"api-authenticator-proxy/util/log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"

@@ -1,7 +1,7 @@
-package router
+package handler
 
 import (
-	"api-authenticator-proxy/src/utils/log"
+	"api-authenticator-proxy/util/log"
 	"github.com/gin-gonic/gin"
 )
 
