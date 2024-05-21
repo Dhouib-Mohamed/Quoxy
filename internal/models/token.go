@@ -7,6 +7,16 @@ type TokenModel struct {
 	CurrentUsage int
 }
 
+type FullToken struct {
+	Id           string
+	Passphrase   string
+	Subscription string
+	CurrentUsage int
+	MaxUsage     int
+	Frequency    string
+	Token        string
+}
+
 type CreateToken struct {
 	Passphrase   string `name:"passphrase"`
 	Subscription string `name:"subscription" binding:"required"`

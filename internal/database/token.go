@@ -5,6 +5,9 @@ import (
 	"api-authenticator-proxy/internal/util/token_handler"
 	"api-authenticator-proxy/util/error_handler"
 	tokenError "api-authenticator-proxy/util/error_handler/token"
+	"api-authenticator-proxy/util/log"
+	"fmt"
+	"github.com/jmoiron/sqlx"
 )
 
 type Token struct{}
@@ -32,27 +35,51 @@ func (t *Token) Create(token *models.CreateToken) (models.ReturnToken, error_han
 	return models.ReturnToken{Token: resToken, Id: id}, nil
 }
 
-func (t *Token) GetById(id string) (models.TokenModel, error_handler.StatusError) {
-	var token models.TokenModel
-	row := db.QueryRow("SELECT token.id, subscription.name, token.current_usage FROM token JOIN subscription ON token.subscription_id = subscription.id WHERE token.id = ?", id)
-	err := checkReadResponse(row.Scan(&token.Id, &token.Subscription, &token.CurrentUsage), "token")
+func (t *Token) GetById(id string) (models.FullToken, error_handler.StatusError) {
+	var token models.FullToken
+	row := db.QueryRow("SELECT token.id, subscription.name, token.current_usage, subscription.rate_limit, subscription.frequency, token.passphrase FROM token JOIN subscription ON token.subscription_id = subscription.id WHERE token.id = ?", id)
+	err := checkReadResponse(row.Scan(&token.Id, &token.Subscription, &token.CurrentUsage, &token.MaxUsage, &token.Frequency, &token.Passphrase), "token")
+	tokenVal, err := token_handler.Generate(token.Id, token.Passphrase)
+	if err != nil {
+		return models.FullToken{}, err
+	}
+	token.Token = tokenVal
 	return token, err
 }
 
 func (t *Token) GetAll() ([]models.TokenModel, error_handler.StatusError) {
 	var tokens []models.TokenModel
-	rows, err := db.Query("SELECT token.id, subscription.name, token.current_usage FROM token JOIN subscription ON token.subscription_id = subscription.id ORDER BY token.id ASC")
+	rows, err := db.Query("SELECT token.id, token.subscription_id, token.current_usage, token.passphrase FROM token ORDER BY token.id ASC")
 	if err != nil {
 		return []models.TokenModel{}, checkReadResponse(err, "token")
 	}
 	for rows.Next() {
 		var token models.TokenModel
-		err := rows.Scan(&token.Id, &token.Subscription, &token.CurrentUsage)
+		err := rows.Scan(&token.Id, &token.Subscription, &token.CurrentUsage, &token.Passphrase)
 		if err != nil {
 			return []models.TokenModel{}, checkReadResponse(err, "token")
 		}
 		tokens = append(tokens, token)
 	}
+	log.Debug(fmt.Sprintf("Successfully read from the token table"))
+	return tokens, nil
+}
+
+func (t *Token) GetAllFull() ([]models.FullToken, error_handler.StatusError) {
+	var tokens []models.FullToken
+	rows, err := db.Query("SELECT token.id, subscription.name, token.current_usage, token.passphrase, subscription.rate_limit, subscription.frequency FROM token JOIN subscription ON token.subscription_id = subscription.id ORDER BY token.id ASC")
+	if err != nil {
+		return []models.FullToken{}, checkReadResponse(err, "token")
+	}
+	for rows.Next() {
+		var token models.FullToken
+		err := rows.Scan(&token.Id, &token.Subscription, &token.CurrentUsage, &token.Passphrase, &token.MaxUsage, &token.Frequency)
+		if err != nil {
+			return []models.FullToken{}, checkReadResponse(err, "token")
+		}
+		tokens = append(tokens, token)
+	}
+	log.Debug(fmt.Sprintf("Successfully read from the token table"))
 	return tokens, nil
 }
 
@@ -74,11 +101,7 @@ func (t *Token) Use(token string) error_handler.StatusError {
 	if err != nil {
 		return err
 	}
-	subscription, err := s.GetByName(tokenData.Subscription)
-	if err != nil {
-		return err
-	}
-	if subscription.RateLimit <= tokenData.CurrentUsage {
+	if tokenData.MaxUsage <= tokenData.CurrentUsage {
 		return tokenError.LimitedTokenError()
 	}
 	res, err1 := db.Exec("UPDATE token SET current_usage = current_usage + 1 WHERE id = ?", id)
@@ -94,7 +117,12 @@ func (t *Token) GenerateToken(id string, passphrase string) (string, error_handl
 	return token_handler.Generate(id, passphrase)
 }
 
-func (t *Token) ResetUsage(id string) error_handler.StatusError {
-	res, err := db.Exec("UPDATE token SET current_usage = 0 WHERE id = ?", id)
+func (t *Token) ResetUsage(ids []string) error_handler.StatusError {
+	query, args, err := sqlx.In(`UPDATE token SET current_usage = 0 WHERE id IN (?) AND current_usage != 0`, ids)
+	if err != nil {
+		return error_handler.UnexpectedError(fmt.Sprintf("Error when creating query: %v", err))
+	}
+
+	res, err := db.Exec(query, args...)
 	return checkWriteResponse(res, err, "token")
 }

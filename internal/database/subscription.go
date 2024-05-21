@@ -4,6 +4,7 @@ import (
 	"api-authenticator-proxy/internal/models"
 	"api-authenticator-proxy/util/error_handler"
 	dbError "api-authenticator-proxy/util/error_handler/db"
+	"api-authenticator-proxy/util/log"
 	"fmt"
 	"regexp"
 	"strings"
@@ -67,6 +68,7 @@ func (s *Subscription) GetAll() ([]models.SubscriptionModel, error_handler.Statu
 		}
 		subscriptions = append(subscriptions, subscription)
 	}
+	log.Debug(fmt.Sprintf("Successfully read %d items from the subscription table", len(subscriptions)))
 	return subscriptions, nil
 }
 

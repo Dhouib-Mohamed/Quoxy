@@ -4,7 +4,6 @@ import (
 	"api-authenticator-proxy/internal/database"
 	"api-authenticator-proxy/internal/models"
 	"api-authenticator-proxy/util/error_handler"
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -51,7 +50,6 @@ func subscriptionRoutes(router *gin.Engine) {
 
 	router.POST("/subscription",
 		func(c *gin.Context) {
-			fmt.Println("BODY", c.Request.Body)
 			var newSubscription models.CreateSubscription
 			if err := c.BindJSON(&newSubscription); err != nil {
 				c.JSON(400, gin.H{"error": err.Error()})
