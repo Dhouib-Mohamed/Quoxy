@@ -1,16 +1,18 @@
 1. Adding Log System (Done)
 2. Adding Error Handling (Done)
-3. Adding Necessary Logs
-4. Adding env system
-5. Adding Documentation
-6. Adding Open Source License
-7. Testing in production
-8. Adding Docker
-9. Adding CI/CD
-10. Adding Grafana for dashboards
-11. Adding Prometheus for Logging
-12. Adding Kubernetes and Helm
-13. Adding Alert System
-14. Adding Organization Support
-15. Adding Admin Panel
-16. Adding Security System
+3. Adding Necessary Logs (Done)
+4. adding params to the get all database functions for customization
+5. Adding env system
+6. Adding Documentation
+7. Adding Open Source License
+8. Testing in production
+9. Adding Docker
+10. Adding CI/CD
+11. Adding Grafana for dashboards
+12. Adding Prometheus for Logging
+13. Adding Kubernetes and Helm
+14. adding pagination to the get all database functions
+15. Adding Alert System
+16. Adding Organization Support
+17. Adding Admin Panel
+18. Adding Security System
