@@ -4,27 +4,29 @@ import (
 	"api-authenticator-proxy/util/log"
 	"context"
 	"database/sql"
+	"fmt"
 	_ "modernc.org/sqlite"
 	"os"
-	"time"
 )
 
 var db *sql.DB
 
-func InitDatabase(dbPath string) error {
+func TestDB() error {
+	if db == nil {
+		return fmt.Errorf("database not initialized")
+	}
+	res := db.Ping()
+	return res
+}
+
+func InitDatabase(dbPath string, initPath string) error {
 	var err error
 	db, err = sql.Open("sqlite", dbPath)
 	if err != nil {
 		return err
 	}
-	// Set connection pool settings
-	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(10)
-	db.SetConnMaxLifetime(time.Minute * 5)
-	db.SetConnMaxIdleTime(time.Minute * 5)
 
-	// Read and execute the initialization script
-	data, err := os.ReadFile("init.sql")
+	data, err := os.ReadFile(initPath)
 	if err != nil {
 		return err
 	}

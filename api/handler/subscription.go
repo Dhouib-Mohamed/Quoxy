@@ -55,12 +55,12 @@ func subscriptionRoutes(router *gin.Engine) {
 				c.JSON(400, gin.H{"error": err.Error()})
 				return
 			}
-			err := subscription.Create(&newSubscription)
+			id, err := subscription.Create(&newSubscription)
 			if err != nil {
 				error_handler.GinHandler(c, err)
 				return
 			}
-			c.JSON(201, gin.H{"message": "Subscription created"})
+			c.JSON(201, gin.H{"message": "Subscription created", "id": id})
 		})
 
 	router.PUT("/subscription/:id",

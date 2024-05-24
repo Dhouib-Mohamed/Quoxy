@@ -23,7 +23,7 @@ func checkWriteResponse(result sql.Result, err error, table string) error_handle
 					val1 := strings.Split(err.Error(), "UNIQUE constraint failed: ")[1]
 					val2 := strings.Split(val1, " ")[0]
 					field := strings.Split(val2, ".")[1]
-					return dbError.FieldConstraintError(table, field, "UNIQUE")
+					return dbError.FieldConstraintError(table, field, "should be UNIQUE")
 				}
 				return dbError.FieldConstraintError(table, "", "Unknown")
 			}

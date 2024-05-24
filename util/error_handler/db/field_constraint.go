@@ -8,7 +8,7 @@ type FieldConstraint struct {
 }
 
 func (e FieldConstraint) GetError() (int, string) {
-	return e.Code, e.Constraint + " constraint violation on field " + e.Field + " in the " + e.Table + " table"
+	return e.Code, "constraint violation on field " + e.Field + " in the " + e.Table + " table - " + e.Field + " " + e.Constraint
 }
 
 func FieldConstraintError(table string, field string, constraint string) FieldConstraint {
