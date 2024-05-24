@@ -13,22 +13,35 @@ import (
 
 type Subscription struct{}
 
-func (s *Subscription) Create(subscription *models.CreateSubscription) error_handler.StatusError {
+func (s *Subscription) Create(subscription *models.CreateSubscription) (string, error_handler.StatusError) {
 	frequency, err := validateFrequency(subscription.Frequency)
+	if subscription.RateLimit < 1 {
+		return "", dbError.FieldConstraintError("subscription", "rate_limit", "should be greater than 0")
+	}
 	if err != nil {
-		return err
+		return "", err
 	}
 	result, err1 := db.Exec("INSERT INTO subscription (name, frequency, rate_limit) VALUES (?, ?, ?)", subscription.Name, frequency, subscription.RateLimit)
-	return checkWriteResponse(result, err1, "subscription")
+	err = checkWriteResponse(result, err1, "subscription")
+	if err != nil {
+		return "", err
+	}
+	id, err := GetLastInsertedId("subscription")
+	if err != nil {
+		return "", err
+	}
+	return id, nil
 }
 
 func (s *Subscription) GetByName(name string) (models.SubscriptionModel, error_handler.StatusError) {
 	var subscription models.SubscriptionModel
 	row := db.QueryRow("SELECT id, name, frequency, rate_limit, deprecated FROM subscription WHERE name = ?", name)
+
 	err := checkReadResponse(row.Scan(&subscription.Id, &subscription.Name, &subscription.Frequency, &subscription.RateLimit, &subscription.Deprecated), "subscription")
 	if subscription.Deprecated {
 		return models.SubscriptionModel{}, dbError.CanceledElementError("subscription")
 	}
+	log.Debug(fmt.Sprintf("Successfully read 1 item from the subscription table %v", subscription))
 	return subscription, err
 }
 

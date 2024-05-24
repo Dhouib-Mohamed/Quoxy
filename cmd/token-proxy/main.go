@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	log.Fatal(database.InitDatabase("db.sqlite"))
+	log.Fatal(database.InitDatabase("db.sqlite", "init.sql"))
 	go frequency_cron.Init()
 	go handler.Router()
 	proxy.Proxy()
