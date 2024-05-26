@@ -1,0 +1,3 @@
+db.test.sqlite
+coverage.out
+test_output.txt

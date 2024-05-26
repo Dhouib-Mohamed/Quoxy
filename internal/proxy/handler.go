@@ -15,7 +15,7 @@ type Handler struct {
 }
 
 func (ph *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Debug(fmt.Sprintf("Proxying request from %s to %s", r.RemoteAddr, r.URL.String()))
+	log.Debug("Proxying request from ", r.RemoteAddr, " to ", r.URL.String())
 	token := r.Header.Get("Proxy-Authorization")
 	if token == "" {
 		http.Error(w, "Token is not provided", http.StatusUnauthorized)
@@ -34,6 +34,6 @@ func (ph *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.URL.Host = ph.destinationUrl.Host
 	r.URL.Scheme = ph.destinationUrl.Scheme
 	r.RequestURI = ""
-	log.Debug(fmt.Sprintf("Proxying request from %s to %s succeded", r.RemoteAddr, r.URL.String()))
+	log.Debug("Proxying request from ", r.RemoteAddr, " to ", r.URL.String(), " succeded")
 	ph.proxy.ServeHTTP(w, r)
 }

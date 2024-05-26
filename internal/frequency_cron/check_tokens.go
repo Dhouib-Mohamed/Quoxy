@@ -12,7 +12,6 @@ import (
 )
 
 var tokenDB = database2.Token{}
-var subscriptionDB = database2.Subscription{}
 
 func checkTokens() {
 	log.Debug("Checking Tokens...")

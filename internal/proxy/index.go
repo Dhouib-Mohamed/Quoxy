@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"api-authenticator-proxy/util/config"
 	"api-authenticator-proxy/util/log"
 	"net/http"
 	"net/http/httputil"
@@ -8,11 +9,15 @@ import (
 )
 
 func Proxy() {
-	remote, err := url.Parse("http://google.com")
+	if !config.GetIsProxyEnabled() {
+		return
+	}
+	port := config.GetProxyPort()
+	target := config.GetProxyTarget()
+	remote, err := url.Parse(target)
 	log.Fatal(err)
 	proxy := httputil.NewSingleHostReverseProxy(remote)
 	http.Handle("/", &Handler{proxy, remote})
-	log.Info("proxy running on port 3000")
-	log.Fatal(http.ListenAndServe("0.0.0.0:3000", nil))
-
+	log.Info("Proxy running on port:", port)
+	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
 }

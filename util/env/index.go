@@ -1,51 +1,37 @@
 package env
 
 import (
-	"api-authenticator-proxy/util/log"
 	"fmt"
 	"github.com/joho/godotenv"
-	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"os"
-	"strconv"
+	"sync"
 )
 
-var yamlFile []byte
+func warning(message string) {
+	fmt.Println(" [Warning] :", message)
+}
+
+var loadOnce sync.Once
 
 func init() {
+	loadOnce.Do(loadEnv)
+}
+
+func loadEnv() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Info("no .env file found")
-	}
-
-	yamlFile, err = ioutil.ReadFile("config.yaml")
-	if err != nil {
-		log.Info(fmt.Sprintf("yamlFile.Get err #%v ", err))
+		warning("no .env file found, using default values")
 	}
 }
 
-func getEnvVar(key string) (string, error) {
+func getEnvVar(key string) string {
+	loadOnce.Do(loadEnv)
 	value, exists := os.LookupEnv(key)
 
 	if exists {
-		return value, nil
+		return value
 	} else {
-		return "", fmt.Errorf("key %s not found", key)
+		warning("Environment variable " + key + " not found, going back to default value")
+		return ""
 	}
-}
-
-func getConfigVar(obj map[string]interface{}) error {
-	return yaml.Unmarshal(yamlFile, obj)
-}
-
-func GetPort() int {
-	port, err := getEnvVar("SMOKE_TEST_PORT")
-	if err != nil {
-		return 3000
-	}
-	value, err := strconv.Atoi(port)
-	if err != nil {
-		return 3000
-	}
-	return value
 }
