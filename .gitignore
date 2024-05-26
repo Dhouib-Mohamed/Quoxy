@@ -1,3 +1,5 @@
 .idea
 *.sqlite*
 vendor
+.env
+config.yaml

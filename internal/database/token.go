@@ -2,7 +2,7 @@ package database
 
 import (
 	"api-authenticator-proxy/internal/models"
-	"api-authenticator-proxy/internal/util/token_handler"
+	"api-authenticator-proxy/internal/token_handler"
 	"api-authenticator-proxy/util/error_handler"
 	tokenError "api-authenticator-proxy/util/error_handler/token"
 	"api-authenticator-proxy/util/log"
@@ -61,7 +61,7 @@ func (t *Token) GetAll() ([]models.TokenModel, error_handler.StatusError) {
 		}
 		tokens = append(tokens, token)
 	}
-	log.Debug(fmt.Sprintf("Successfully read from the token table"))
+	log.Debug("Successfully read from the token table")
 	return tokens, nil
 }
 
@@ -79,7 +79,7 @@ func (t *Token) GetAllFull() ([]models.FullToken, error_handler.StatusError) {
 		}
 		tokens = append(tokens, token)
 	}
-	log.Debug(fmt.Sprintf("Successfully read from the token table"))
+	log.Debug("Successfully read from the token table")
 	return tokens, nil
 }
 

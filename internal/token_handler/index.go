@@ -1,6 +1,7 @@
 package token_handler
 
 import (
+	"api-authenticator-proxy/util/env"
 	"api-authenticator-proxy/util/error_handler"
 	tokenError "api-authenticator-proxy/util/error_handler/token"
 	"api-authenticator-proxy/util/log"
@@ -18,7 +19,7 @@ func Generate(id string, passphrase string) (string, error_handler.StatusError) 
 		"id":         id,
 		"passphrase": passphrase,
 	}
-	log.Debug(fmt.Sprintf("generating token from : %v", data))
+	log.Debug("generating token from : ", data)
 	jsonData, err1 := json.Marshal(data)
 	if err1 != nil {
 		log.Error(fmt.Errorf("unexpected error : Error in provided data : %v", err1))
@@ -41,7 +42,7 @@ func Generate(id string, passphrase string) (string, error_handler.StatusError) 
 
 	generatedToken := base64.StdEncoding.EncodeToString(ciphertext)
 
-	log.Debug(fmt.Sprintf("generated token : %v", generatedToken))
+	log.Debug("generated token : ", generatedToken)
 	return generatedToken, nil
 }
 
@@ -77,12 +78,13 @@ func Decrypt(token string) (string, error_handler.StatusError) {
 		return "", tokenError.InvalidTokenError()
 	}
 
-	log.Debug(fmt.Sprintf("decrypted token : %v", decryptedStruct["id"]))
+	log.Debug("decrypted token : ", decryptedStruct["id"])
 	return decryptedStruct["id"], nil
 }
 
 func createGCMBloc() (cipher.AEAD, error_handler.StatusError) {
-	var key = []byte("example key 1234")
+	encryptionKey := env.GetEncryptionKey()
+	var key = []byte(encryptionKey)
 
 	block, err := aes.NewCipher(key)
 	if err != nil {

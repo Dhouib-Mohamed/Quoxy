@@ -11,10 +11,10 @@ import (
 
 func checkWriteResponse(result sql.Result, err error, table string) error_handler.StatusError {
 	if err != nil {
-		log.Error(fmt.Errorf("Error when writing to the %s table : %s", table, err.Error()))
+		log.Error(fmt.Errorf("error when writing to the %s table : %s", table, err.Error()))
 		switch err.Error() {
 		case sql.ErrNoRows.Error():
-			log.Debug(fmt.Sprintf("No Element following this criteria was found in the %s table", table))
+			log.Debug("No Element following this criteria was found in the ", table, " table")
 			return dbError.ElementNotFoundError(table)
 		default:
 			if strings.Contains(err.Error(), "constraint failed:") {
@@ -38,7 +38,7 @@ func checkWriteResponse(result sql.Result, err error, table string) error_handle
 	if rows == 0 {
 		return dbError.ElementNotFoundError(table)
 	}
-	log.Debug(fmt.Sprintf("Successfully changed %d item in the %s table", rows, table))
+	log.Debug("Successfully changed ", rows, " items in the ", table, " table")
 	return nil
 }
 
@@ -52,7 +52,7 @@ func checkReadResponse(err error, table string) error_handler.StatusError {
 			return error_handler.UnexpectedError(fmt.Sprintf("Unexpected error when reading from the %s table ", table))
 		}
 	}
-	log.Debug(fmt.Sprintf("Successfully read 1 item from the %s table", table))
+	log.Debug("Successfully read 1 item from the ", table, " table")
 	return nil
 }
 

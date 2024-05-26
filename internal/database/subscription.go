@@ -35,13 +35,14 @@ func (s *Subscription) Create(subscription *models.CreateSubscription) (string, 
 
 func (s *Subscription) GetByName(name string) (models.SubscriptionModel, error_handler.StatusError) {
 	var subscription models.SubscriptionModel
+	log.Debug("Reading from the subscription table with name : ", name)
 	row := db.QueryRow("SELECT id, name, frequency, rate_limit, deprecated FROM subscription WHERE name = ?", name)
 
 	err := checkReadResponse(row.Scan(&subscription.Id, &subscription.Name, &subscription.Frequency, &subscription.RateLimit, &subscription.Deprecated), "subscription")
 	if subscription.Deprecated {
 		return models.SubscriptionModel{}, dbError.CanceledElementError("subscription")
 	}
-	log.Debug(fmt.Sprintf("Successfully read 1 item from the subscription table %v", subscription))
+	log.Debug("Successfully read 1 item from the subscription table ", subscription)
 	return subscription, err
 }
 
@@ -57,13 +58,15 @@ func (s *Subscription) Update(id string, subscription *models.UpdateSubscription
 	return checkWriteResponse(res, err, "subscription")
 }
 
+// This will delete all the tokens linked to this subscription
 func (s *Subscription) Disable(id string) error_handler.StatusError {
-	res, err := db.Exec("UPDATE subscription SET deprecated = true WHERE id = ?", id)
+	db.Exec("DELETE FROM token where subscription_id = ?", id)
+	res, err := db.Exec("UPDATE subscription SET deprecated = true WHERE id = ? and deprecated = false", id)
 	return checkWriteResponse(res, err, "subscription")
 }
 
 func (s *Subscription) Restore(id string) error_handler.StatusError {
-	res, err := db.Exec("UPDATE subscription SET deprecated = false WHERE id = ?", id)
+	res, err := db.Exec("UPDATE subscription SET deprecated = false WHERE id = ? and deprecated = true", id)
 	return checkWriteResponse(res, err, "subscription")
 }
 
@@ -81,7 +84,7 @@ func (s *Subscription) GetAll() ([]models.SubscriptionModel, error_handler.Statu
 		}
 		subscriptions = append(subscriptions, subscription)
 	}
-	log.Debug(fmt.Sprintf("Successfully read %d items from the subscription table", len(subscriptions)))
+	log.Debug("Successfully read ", len(subscriptions), " items from the subscription table")
 	return subscriptions, nil
 }
 

@@ -102,29 +102,45 @@ func TestSubscriptionWorkflow(t *testing.T) {
 	})
 	t.Run("Update", func(t *testing.T) {
 		ts := TestSubscription{t: t, s: &database.Subscription{}}
+		name = name + "1"
 		testUpdateSubscription := models.UpdateSubscription{
-			Name:      name + "1",
+			Name:      name,
 			Frequency: "* * * * *",
 			RateLimit: 3,
 		}
 		testUpdateWrongSubscription := models.UpdateSubscription{
-			Name:      name + "2",
+			Name:      "testing",
 			RateLimit: -10,
 		}
-		ts.update(id1, testUpdateSubscription, 200)
 		ts.update(id1, testUpdateWrongSubscription, 400)
+		ts.update(id1, testUpdateSubscription, 200)
 		ts.update(id2, testUpdateSubscription, 404)
+		ts.getByName(name, 200)
+	})
+	var testToken models.ReturnToken
+	t.Run("Create Token", func(t *testing.T) {
+		tt := TestToken{t: t, tk: &database.Token{}}
+		token := models.CreateToken{
+			Subscription: name,
+			Passphrase:   "test",
+		}
+		testToken := tt.create(token, 200)
+		tt.getById(testToken.Id, 200)
 	})
 	t.Run("Delete", func(t *testing.T) {
 		ts := TestSubscription{t: t, s: &database.Subscription{}}
+		tt := TestToken{t: t, tk: &database.Token{}}
 		ts.delete(id1, 200)
 		ts.getById(id1, 404)
+		tt.getById(testToken.Id, 404)
 		ts.delete(id2, 404)
 	})
 	t.Run("Restore", func(t *testing.T) {
 		ts := TestSubscription{t: t, s: &database.Subscription{}}
+		tt := TestToken{t: t, tk: &database.Token{}}
 		ts.Restore(id1, 200)
 		ts.getById(id1, 200)
+		tt.getById(testToken.Id, 404)
 		ts.Restore(id2, 404)
 	})
 }
