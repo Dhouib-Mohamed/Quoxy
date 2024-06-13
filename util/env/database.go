@@ -1,5 +1,7 @@
 package env
 
+import "strings"
+
 func GetDatabasePath() string {
 	path := getEnvVar("DATABASE_PATH")
 	if path == "" {
@@ -9,9 +11,12 @@ func GetDatabasePath() string {
 }
 
 func GetDatabaseInitFile() string {
-	initFile := getEnvVar("DATABASE_INIT_FILE")
+	initFile := getEnvVar("DATABASE_INIT_FOLDER")
 	if initFile == "" {
-		return "init.sql"
+		return "scripts/sql/"
+	}
+	if !strings.HasSuffix(initFile, "/") {
+		initFile += "/"
 	}
 	return initFile
 }

@@ -1,0 +1,50 @@
+version: '3.7'
+
+networks:
+  mynet:
+    driver: bridge
+
+services:
+  mysql:
+    image: mysql
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - /tmp/mysql:/var/lib/mysql
+    networks:
+      - mynet
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    networks:
+      - mynet
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server
+    container_name: mssql
+    restart: always
+    environment:
+      SA_PASSWORD: "Password-11"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - mynet
+
+
+

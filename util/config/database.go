@@ -9,6 +9,7 @@ type DatabaseEnv struct {
 	Port     string `yaml:"port"`
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
+	Name     string `yaml:"name"`
 }
 
 var database DatabaseEnv
@@ -64,4 +65,12 @@ func GetDatabasePassword() string {
 		return "password"
 	}
 	return database.Password
+}
+
+func GetDatabaseName() string {
+	if database.Name == "" {
+		log.Warning("Database name not set. Please set the name in config.yaml")
+		return "mydb"
+	}
+	return database.Name
 }

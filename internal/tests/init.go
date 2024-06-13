@@ -30,7 +30,7 @@ func validateError(t *testing.T, res error_handler.StatusError, status int) {
 
 func testDatabase(t *testing.T) {
 	// Initialize the database
-	err := database.InitDatabase("db.test.sqlite", "../../init.sql")
+	err := database.InitDatabase("db.test.sqlite", "../../scripts/sql/")
 	if err != nil {
 		t.Fatal(err)
 	}
