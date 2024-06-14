@@ -5,10 +5,10 @@
 5. adding params to the get all database functions for customization (Done)
 6. Adding env system (Done)
 7. Adding Config File System (Done)
-8. Testing The Databases Connections
-9. Adding Documentation 
-10. Choosing a Name
-11. Adding Open Source License
+8. Testing The Databases Connections (Done)
+9. Adding Documentation (Done)
+10. Choosing a Name (Done)
+11. Adding Open Source License (Done)
 12. Testing in production
 13. Adding Docker
 14. Adding CI/CD
