@@ -48,7 +48,7 @@ func Debug(debug ...any) {
 }
 
 func Warning(warning ...any) {
-	if len(warning) != 0 {
+	if len(warning) != 0 && logLevel >= env.INFO {
 		c := color.New(color.FgYellow)
 		msg := fmt.Sprintf("%s [Warning]: ", getTime())
 		msg += fmt.Sprintln(warning...)
@@ -61,5 +61,12 @@ func Fatal(fatal error) {
 	fmt.Println("")
 	if fatal != nil {
 		panic(fatal)
+	}
+}
+
+func CLI(message ...any) {
+	if logLevel >= env.CLI {
+		c := color.New(color.FgMagenta)
+		c.Println(message...)
 	}
 }
