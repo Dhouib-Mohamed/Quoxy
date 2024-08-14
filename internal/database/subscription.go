@@ -4,6 +4,7 @@ import (
 	"api-authenticator-proxy/internal/models"
 	"api-authenticator-proxy/util/error_handler"
 	dbError "api-authenticator-proxy/util/error_handler/db"
+	"api-authenticator-proxy/util/id"
 	"api-authenticator-proxy/util/log"
 	"fmt"
 	"regexp"
@@ -21,16 +22,13 @@ func (s *Subscription) Create(subscription *models.CreateSubscription) (string, 
 	if err != nil {
 		return "", err
 	}
-	result, err1 := db.Exec("INSERT INTO subscription (name, frequency, rate_limit) VALUES (?, ?, ?)", subscription.Name, frequency, subscription.RateLimit)
+	generatedId := id.GenerateRandomId()
+	result, err1 := db.Exec("INSERT INTO subscription (id,name, frequency, rate_limit) VALUES (?,?, ?, ?)", generatedId, subscription.Name, frequency, subscription.RateLimit)
 	err = checkWriteResponse(result, err1, "subscription")
 	if err != nil {
 		return "", err
 	}
-	id, err := GetLastInsertedId("subscription")
-	if err != nil {
-		return "", err
-	}
-	return id, nil
+	return generatedId, nil
 }
 
 func (s *Subscription) GetByName(name string) (models.SubscriptionModel, error_handler.StatusError) {
@@ -60,8 +58,12 @@ func (s *Subscription) Update(id string, subscription *models.UpdateSubscription
 
 // This will delete all the tokens linked to this subscription
 func (s *Subscription) Disable(id string) error_handler.StatusError {
-	db.Exec("DELETE FROM token where subscription_id = ?", id)
-	res, err := db.Exec("UPDATE subscription SET deprecated = true WHERE id = ? and deprecated = false", id)
+	res, err := db.Exec("DELETE FROM token where subscription_id = ?", id)
+	finalError := checkWriteResponse(res, err, "token")
+	if finalError != nil {
+		return finalError
+	}
+	res, err = db.Exec("UPDATE subscription SET deprecated = true WHERE id = ? and deprecated = false", id)
 	return checkWriteResponse(res, err, "subscription")
 }
 

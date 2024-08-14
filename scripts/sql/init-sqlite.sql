@@ -1,6 +1,6 @@
 -- Subscription table
 CREATE TABLE IF NOT EXISTS subscription (
-                                            id VARCHAR(16) PRIMARY KEY DEFAULT (LOWER(HEX(RANDOMBLOB(16)))),
+                                            id VARCHAR(16) PRIMARY KEY,
                                             name VARCHAR(255) NOT NULL UNIQUE,
                                             frequency VARCHAR(255) NOT NULL,
                                             rate_limit INT NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS subscription (
 
 -- Token table
 CREATE TABLE IF NOT EXISTS token (
-                                     id VARCHAR(16) PRIMARY KEY DEFAULT (LOWER(HEX(RANDOMBLOB(16)))),
+                                     id VARCHAR(16) PRIMARY KEY,
                                      passphrase VARCHAR(255),
                                      subscription_id VARCHAR(16) NOT NULL,
                                      current_usage INT NOT NULL DEFAULT 0,
