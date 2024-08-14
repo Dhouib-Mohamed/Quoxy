@@ -5,7 +5,6 @@ import (
 	"api-authenticator-proxy/util/network"
 	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"sync"
@@ -21,7 +20,7 @@ func loadConfig() {
 	if err != nil {
 		log.Info("no .env file found")
 	}
-	yamlFile, err := ioutil.ReadFile("config.yaml")
+	yamlFile, err := os.ReadFile("config.yaml")
 	if err != nil {
 		log.Info("yamlFile.Get err #%v ", err)
 	}

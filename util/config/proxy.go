@@ -15,7 +15,7 @@ var proxy ProxyEnv
 
 func init() {
 	proxy = ProxyEnv{}
-	getConfigVar(&proxy, "proxy")
+	log.Fatal(getConfigVar(&proxy, "proxy"))
 }
 
 func GetProxyPort() string {
@@ -36,7 +36,7 @@ func GetProxyTarget() string {
 }
 
 func GetIsProxyEnabled() bool {
-	if proxy.Disabled == true {
+	if proxy.Disabled {
 		log.Warning("Proxy is disabled. Please enable the router in config.yaml")
 	}
 	return !proxy.Disabled

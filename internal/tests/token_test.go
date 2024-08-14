@@ -88,6 +88,7 @@ func TestTokenWorkflow(t *testing.T) {
 		tt := TestToken{t: t, tk: &database.Token{}}
 		tt.getById(token.Id, 200)
 		tt.getById("2", 404)
+		tt.update(token.Id, models.UpdateToken{Subscription: "test2"}, 200)
 	})
 	t.Run("Use", func(t *testing.T) {
 		tt := TestToken{t: t, tk: &database.Token{}}

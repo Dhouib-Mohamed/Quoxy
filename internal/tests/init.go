@@ -21,11 +21,11 @@ func validateError(t *testing.T, res error_handler.StatusError, status int) {
 	if code != 200 {
 		if code != status {
 			log.Error(fmt.Errorf("%s - Status : %d", err, code))
-			t.Error(fmt.Sprintf("Expected Code is %d but we found %d : %s", status, code, err))
+			t.Errorf("Expected Code is %d but we found %d : %s", status, code, err)
 			return
 		}
 	}
-	t.Log(fmt.Sprintf("This is a success case - Status : %d", code))
+	t.Logf("This is a success case - Status : %d", code)
 }
 
 func testDatabase(t *testing.T) {

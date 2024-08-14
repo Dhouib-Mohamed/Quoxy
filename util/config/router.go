@@ -13,7 +13,7 @@ var router RouterEnv
 
 func init() {
 	router = RouterEnv{}
-	getConfigVar(&router, "router")
+	log.Fatal(getConfigVar(&router, "router"))
 }
 
 func GetRouterPort() string {
@@ -21,7 +21,7 @@ func GetRouterPort() string {
 }
 
 func GetIsRouterEnabled() bool {
-	if router.Disabled == true {
+	if router.Disabled {
 		log.Warning("Router is disabled. Please enable the router in config.yaml")
 	}
 	return !router.Disabled
