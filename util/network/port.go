@@ -12,7 +12,7 @@ var usedPorts = make(map[int]bool)
 func IsPortValid(port string) bool {
 	intPort, err := strconv.Atoi(port)
 	if err != nil {
-		log.Warning("Invalid port number: %s", port)
+		log.Warning("Invalid port number: ", port)
 		return false
 	}
 	if usedPorts[intPort] {

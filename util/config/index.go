@@ -22,7 +22,7 @@ func loadConfig() {
 	}
 	yamlFile, err := os.ReadFile("config.yaml")
 	if err != nil {
-		log.Info("yamlFile.Get err #%v ", err)
+		log.Info("yamlFile.Get err #", err)
 	}
 	err = yaml.Unmarshal(yamlFile, &yamlContent)
 	if err != nil {
@@ -57,7 +57,6 @@ func getConfigVar(obj interface{}, name string) error {
 }
 
 func getValidPort(port string) string {
-	log.Debug("Provided port : ", port, " is valid : ", network.IsPortValid(port))
 	provided := port != ""
 	if provided && network.IsPortValid(port) {
 		return port
