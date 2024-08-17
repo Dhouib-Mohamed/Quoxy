@@ -21,9 +21,10 @@ func (tt *TestToken) create(token models.CreateToken, status int) models.ReturnT
 	return models.ReturnToken{}
 }
 
-func (tt *TestToken) getById(id string, status int) {
-	_, err := tt.tk.GetById(id)
+func (tt *TestToken) getById(id string, status int) models.FullToken {
+	token, err := tt.tk.GetById(id)
 	validateError(tt.t, err, status)
+	return token
 }
 
 func (tt *TestToken) getAll(status int) {
@@ -87,8 +88,19 @@ func TestTokenWorkflow(t *testing.T) {
 	t.Run("Update", func(t *testing.T) {
 		tt := TestToken{t: t, tk: &database.Token{}}
 		tt.getById(token.Id, 200)
-		tt.getById("2", 404)
+		ts := TestSubscription{t: t, s: &database.Subscription{}}
+		testSubscription2 := models.CreateSubscription{
+			Name:      "test2",
+			Frequency: "* * * * *",
+			RateLimit: 2,
+		}
+		tt.update(token.Id, models.UpdateToken{Subscription: "not-found-sub"}, 404)
+		ts.create(testSubscription2, 200)
 		tt.update(token.Id, models.UpdateToken{Subscription: "test2"}, 200)
+		item := tt.getById(token.Id, 200)
+		if item.Subscription != "test2" {
+			t.Errorf("Expected test2, got %s", item.Subscription)
+		}
 	})
 	t.Run("Use", func(t *testing.T) {
 		tt := TestToken{t: t, tk: &database.Token{}}

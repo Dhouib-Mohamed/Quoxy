@@ -3,3 +3,6 @@
 vendor
 .env
 config.yaml
+bin
+coverage.out
+test_output.txt
