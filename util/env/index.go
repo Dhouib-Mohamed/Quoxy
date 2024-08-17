@@ -18,9 +18,18 @@ func init() {
 }
 
 func loadEnv() {
-	err := godotenv.Load()
-	if err != nil {
-		warning("no .env file found, using default values")
+	env := GetEnvironment()
+	if env == TEST {
+		err := godotenv.Load("../../.env.test")
+		if err != nil {
+			warning("no .env.test file found, using default values")
+		}
+
+	} else {
+		err := godotenv.Load()
+		if err != nil {
+			warning("no .env file found, using default values")
+		}
 	}
 }
 

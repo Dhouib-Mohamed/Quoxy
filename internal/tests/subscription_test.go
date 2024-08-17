@@ -26,9 +26,10 @@ func (ts *TestSubscription) update(id string, subscription models.UpdateSubscrip
 	validateError(ts.t, err, status)
 }
 
-func (ts *TestSubscription) getById(id string, status int) {
-	_, err := ts.s.GetById(id)
+func (ts *TestSubscription) getById(id string, status int) models.SubscriptionModel {
+	item, err := ts.s.GetById(id)
 	validateError(ts.t, err, status)
+	return item
 }
 
 func (ts *TestSubscription) getByName(name string, status int) {

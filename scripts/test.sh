@@ -1,12 +1,9 @@
 #!/bin/bash
-cd internal/tests || exit
 
-# Run tests and generate coverage report
-go test -v -cover -coverprofile=coverage.out
-#!/bin/bash
-
+rm -f coverage.out
+rm -f test_output.txt
 # Run tests and capture output
-TEST_OUTPUT=$(go test -v -cover -coverprofile=coverage.out 2>&1)
+TEST_OUTPUT=$(ENV=TEST go test -v -cover -coverprofile=coverage.out ./internal/tests 2>&1)
 
 # Save the test output to a file for debugging purposes
 echo "$TEST_OUTPUT" > test_output.txt
@@ -15,7 +12,7 @@ echo "$TEST_OUTPUT" > test_output.txt
 COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
 
 # Define a minimum acceptable threshold (e.g., 80%)
-SUCCESS_THRESHOLD=90.0
+SUCCESS_THRESHOLD=98.0
 
 COVERAGE_THRESHOLD=65.0
 

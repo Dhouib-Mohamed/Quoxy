@@ -1,11 +1,10 @@
 package config
 
 import (
+	"api-authenticator-proxy/util/env"
 	"api-authenticator-proxy/util/log"
 	"api-authenticator-proxy/util/network"
-	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"sync"
@@ -17,13 +16,19 @@ var (
 )
 
 func loadConfig() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Info("no .env file found")
-	}
-	yamlFile, err := ioutil.ReadFile("config.yaml")
-	if err != nil {
-		log.Info("yamlFile.Get err #%v ", err)
+	environment := env.GetEnvironment()
+	var yamlFile []byte
+	var err error
+	if environment == env.TEST {
+		yamlFile, err = os.ReadFile("../../config.test.yaml")
+		if err != nil {
+			log.Info("Test yamlFile.Get err #", err)
+		}
+	} else {
+		yamlFile, err = os.ReadFile("config.yaml")
+		if err != nil {
+			log.Info("yamlFile.Get err #", err)
+		}
 	}
 	err = yaml.Unmarshal(yamlFile, &yamlContent)
 	if err != nil {
@@ -38,7 +43,6 @@ func getConfigVar(obj interface{}, name string) error {
 	loadOnce.Do(loadConfig)
 	content, ok := yamlContent[name]
 	if !ok {
-		log.Warning("Config bloc ", name, "is not found")
 		return os.ErrNotExist
 	}
 
@@ -58,7 +62,6 @@ func getConfigVar(obj interface{}, name string) error {
 }
 
 func getValidPort(port string) string {
-	log.Debug("Provided port : ", port, " is valid : ", network.IsPortValid(port))
 	provided := port != ""
 	if provided && network.IsPortValid(port) {
 		return port

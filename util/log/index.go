@@ -4,6 +4,7 @@ import (
 	"api-authenticator-proxy/util/env"
 	"fmt"
 	"github.com/fatih/color"
+	"strings"
 	"time"
 )
 
@@ -22,6 +23,15 @@ func getTime() string {
 	return currentTime.Format("2006-01-02 15:04:05")
 }
 
+func logPrint(colorType color.Attribute, desiredLogLevel int, logPrefix string, a ...any) {
+	if len(a) > 0 && logLevel >= desiredLogLevel {
+		c := color.New(colorType)
+		msg := fmt.Sprintf("%s %s : ", getTime(), logPrefix)
+		msg += strings.TrimRight(fmt.Sprintln(a...), "\n")
+		c.Print(msg)
+	}
+}
+
 func Error(err error) {
 	if err != nil && logLevel >= env.ERROR {
 		c := color.New(color.FgRed)
@@ -29,31 +39,16 @@ func Error(err error) {
 	}
 }
 
-func Info(info ...any) {
-	if len(info) != 0 && logLevel >= env.INFO {
-		c := color.New(color.FgGreen)
-		msg := fmt.Sprintf("%s [Info]   : ", getTime())
-		msg += fmt.Sprintln(info...)
-		c.Print(msg)
-	}
+func Info(a ...any) {
+	logPrint(color.FgGreen, env.INFO, "[Info]   ", a...)
 }
 
-func Debug(debug ...any) {
-	if len(debug) != 0 && logLevel >= env.DEBUG {
-		c := color.New(color.FgBlue)
-		msg := fmt.Sprintf("%s [Debug]  : ", getTime())
-		msg += fmt.Sprintln(debug...)
-		c.Print(msg)
-	}
+func Debug(a ...any) {
+	logPrint(color.FgBlue, env.DEBUG, "[Debug]  ", a...)
 }
 
-func Warning(warning ...any) {
-	if len(warning) != 0 && logLevel >= env.INFO {
-		c := color.New(color.FgYellow)
-		msg := fmt.Sprintf("%s [Warning]: ", getTime())
-		msg += fmt.Sprintln(warning...)
-		c.Print(msg)
-	}
+func Warning(a ...any) {
+	logPrint(color.FgYellow, env.INFO, "[Warning]", a...)
 }
 
 func Fatal(fatal error) {

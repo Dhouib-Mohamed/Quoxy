@@ -5,6 +5,7 @@ import (
 	"api-authenticator-proxy/internal/token_handler"
 	"api-authenticator-proxy/util/error_handler"
 	tokenError "api-authenticator-proxy/util/error_handler/token"
+	"api-authenticator-proxy/util/id"
 	"api-authenticator-proxy/util/log"
 	"fmt"
 	"github.com/jmoiron/sqlx"
@@ -19,26 +20,26 @@ func (t *Token) Create(token *models.CreateToken) (models.ReturnToken, error_han
 	if err != nil {
 		return models.ReturnToken{}, err
 	}
-	res, err1 := db.Exec("INSERT INTO token (subscription_id,passphrase) VALUES (?, ?)", subscription.Id, token.Passphrase)
+	generatedId := id.GenerateRandomId()
+	res, err1 := db.Exec("INSERT INTO token (id,subscription_id,passphrase) VALUES (?,?, ?)", generatedId, subscription.Id, token.Passphrase)
 	err = checkWriteResponse(res, err1, "token")
 	if err != nil {
 		return models.ReturnToken{}, err
 	}
-	id, err := GetLastInsertedId("token")
+	resToken, err := t.GenerateToken(generatedId, token.Passphrase)
 	if err != nil {
 		return models.ReturnToken{}, err
 	}
-	resToken, err := t.GenerateToken(id, token.Passphrase)
-	if err != nil {
-		return models.ReturnToken{}, err
-	}
-	return models.ReturnToken{Token: resToken, Id: id}, nil
+	return models.ReturnToken{Token: resToken, Id: generatedId}, nil
 }
 
 func (t *Token) GetById(id string) (models.FullToken, error_handler.StatusError) {
 	var token models.FullToken
 	row := db.QueryRow("SELECT token.id, subscription.name, token.current_usage, subscription.rate_limit, subscription.frequency, token.passphrase FROM token JOIN subscription ON token.subscription_id = subscription.id WHERE token.id = ?", id)
 	err := checkReadResponse(row.Scan(&token.Id, &token.Subscription, &token.CurrentUsage, &token.MaxUsage, &token.Frequency, &token.Passphrase), "token")
+	if err != nil {
+		return models.FullToken{}, err
+	}
 	tokenVal, err := token_handler.Generate(token.Id, token.Passphrase)
 	if err != nil {
 		return models.FullToken{}, err

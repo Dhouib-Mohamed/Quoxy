@@ -1,0 +1,17 @@
+router:
+  enabled: true # Enable or disable the router
+  port: 8080 # Port to listen on
+proxy:
+  enabled: true # Enable or disable the proxy
+  port: 8081 # Port to listen on
+  target: https://google.com # Target URL
+database:
+  external: false # Use an external database
+  # If external is false, the used driver is sqlite and the following fields are ignored
+  # If external is true, the following fields are required else they are ignored
+  driver: mysql # Database driver : accepted values are mysql, postgres, mssql
+  host: localhost # Database host
+  port: 3306 # Database port
+  user: root # Database user
+  password: password # Database password
+  name: mydb # Database name
