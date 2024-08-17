@@ -7,6 +7,7 @@ import (
 const (
 	NONE = iota
 	ERROR
+	CLI
 	INFO
 	DEBUG
 )
@@ -19,6 +20,8 @@ func GetLogLevel() int {
 		return DEBUG
 	case "info":
 		return INFO
+	case "cli":
+		return CLI
 	case "error":
 		return ERROR
 	case "none":
