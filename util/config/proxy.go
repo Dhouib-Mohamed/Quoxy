@@ -15,7 +15,7 @@ var proxy ProxyEnv
 
 func init() {
 	proxy = ProxyEnv{}
-	log.Fatal(getConfigVar(&proxy, "proxy"))
+	log.Warning(getConfigVar(&proxy, "proxy"))
 }
 
 func GetProxyPort() string {

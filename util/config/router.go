@@ -13,7 +13,7 @@ var router RouterEnv
 
 func init() {
 	router = RouterEnv{}
-	log.Fatal(getConfigVar(&router, "router"))
+	log.Warning(getConfigVar(&router, "router"))
 }
 
 func GetRouterPort() string {

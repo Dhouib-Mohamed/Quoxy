@@ -13,7 +13,7 @@ func GetDatabasePath() string {
 func GetDatabaseInitFile() string {
 	initFile := getEnvVar("DATABASE_INIT_FOLDER")
 	if initFile == "" {
-		return "scripts/sql/"
+		return "scripts/sql"
 	}
 	if !strings.HasSuffix(initFile, "/") {
 		initFile += "/"

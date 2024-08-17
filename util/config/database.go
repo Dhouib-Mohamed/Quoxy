@@ -16,7 +16,7 @@ var database DatabaseEnv
 
 func init() {
 	database = DatabaseEnv{}
-	log.Fatal(getConfigVar(&database, "database"))
+	log.Warning(getConfigVar(&database, "database"))
 }
 
 func IsDatabaseExternal() bool {

@@ -23,7 +23,7 @@ func getTime() string {
 	return currentTime.Format("2006-01-02 15:04:05")
 }
 
-func print(colorType color.Attribute, desiredLogLevel int, logPrefix string, a ...any) {
+func logPrint(colorType color.Attribute, desiredLogLevel int, logPrefix string, a ...any) {
 	if len(a) > 0 && logLevel >= desiredLogLevel {
 		c := color.New(colorType)
 		msg := fmt.Sprintf("%s %s : ", getTime(), logPrefix)
@@ -40,15 +40,15 @@ func Error(err error) {
 }
 
 func Info(a ...any) {
-	print(color.FgGreen, env.INFO, "[Info]   ", a...)
+	logPrint(color.FgGreen, env.INFO, "[Info]   ", a...)
 }
 
 func Debug(a ...any) {
-	print(color.FgBlue, env.DEBUG, "[Debug]  ", a...)
+	logPrint(color.FgBlue, env.DEBUG, "[Debug]  ", a...)
 }
 
 func Warning(a ...any) {
-	print(color.FgYellow, env.INFO, "[Warning]", a...)
+	logPrint(color.FgYellow, env.INFO, "[Warning]", a...)
 }
 
 func Fatal(fatal error) {

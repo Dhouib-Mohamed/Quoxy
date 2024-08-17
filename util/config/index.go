@@ -43,7 +43,6 @@ func getConfigVar(obj interface{}, name string) error {
 	loadOnce.Do(loadConfig)
 	content, ok := yamlContent[name]
 	if !ok {
-		log.Warning("Config bloc ", name, "is not found")
 		return os.ErrNotExist
 	}
 
